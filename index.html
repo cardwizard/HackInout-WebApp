@@ -1,0 +1,56 @@
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/components/icon.min.css" />
+<link href="common.css" rel="stylesheet">
+
+<div class="ui sidebar inverted vertical menu">
+	<div class="item">
+		<a class="ui logo icon image" href="/" style="margin-right: 10px;">
+		    <img src="https://ui-avatars.com/api/?name=User&size=32&length=1&background=0D8ABC&color=fff&rounded=true">
+		</a>
+		<a href="/">
+			<b>Welcome User</b>
+		</a>
+	</div>
+	<div class="item">
+		<div class="header">
+			Menu
+		</div>
+		<div class="menu">
+			<a class="item" href="track.html">Track bus location</a>
+			<a class="item" href="share.html">Share bus location</a>
+			<a class="item" href="#">Credits</a>
+			<a class="item" href="#">Logout</a>
+		</div>
+	</div>
+</div>
+<div class="pusher">
+	<!-- Site content !-->
+	<button class="ui button basic top-left" id="menu">
+		<i class="sidebar icon"></i> Menu
+	</button>
+	<div class="wrapper full-width half-height" style="border-bottom: 1px solid #888;">
+		<a class="container" href="track.html">
+			<div class="shift-down">
+				<h1>Track bus location</h1>
+			</div>
+		</a>
+	</div>
+	<div class="wrapper full-width half-height">
+		<a class="container" href="share.html">
+			<div class="shift-down">
+				<h1>Share bus location</h1>
+			</div>
+		</a>
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js"></script>
+<script type="text/javascript">
+	$('#menu').click(function(event) {
+		/* Act on the event */
+		$('.ui.sidebar').sidebar('toggle');
+	});
+</script>
