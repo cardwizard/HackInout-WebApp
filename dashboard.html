@@ -44,8 +44,9 @@
 		  <i class="dropdown icon"></i>
 		</div>
 		<canvas id="bar-chart" width="538" height="302" style="display: block; height: 242px; width: 431px;"></canvas>
+	</div>
+	<div style="max-width: 500px; max-height: 400px; margin: auto;">
 		<canvas id="line-chart" width="538" height="302" style="display: block; height: 242px; width: 431px;"></canvas>
-		
 	</div>
 
   <h3 style="text-align: center;font-weight: bold;"> PerFect routes for Advertisement</h3>
@@ -77,7 +78,7 @@
 </script>
 <script>
 
-var base_url = "http://localhost:5000";
+var base_url = "http://127.0.0.1:5000";
 
 
 function create_dropdown(route_info)
@@ -90,7 +91,7 @@ function create_dropdown(route_info)
 		  $.ajax({
 				   type: "GET",
 					dataType: "json",
-					url: "http://localhost:5000/v1/get_crowd_info",
+					url: base_url + "/v1/get_crowd_info",
 					data: {"route_number": value},
 					success: function(data){
 						render_bar_graph(data["bar_chart"]);
@@ -105,7 +106,7 @@ $(document).ready(function(){
     $.ajax({
                type: "GET",
                 dataType: "json",
-                url: "http://localhost:5000/v1/route_numbers",
+                url: base_url + "/v1/route_numbers",
                 success: function(data){
                     create_dropdown(data);
                 }

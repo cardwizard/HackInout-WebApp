@@ -124,6 +124,69 @@
 		</div>
 	</div>
 	<div id="stop_sharing" style="text-align: center; padding: 48px 10%;">
+		<h2>Your ticket</h2>
+		<div id="ticket-wrapper">
+			<div class="ui relaxed divided list">
+				<div class="item">
+					<i class="large code middle aligned icon"></i>
+					<div class="content">
+						<div class="header">Route number</a></div>
+						<div class="description"><span id="t_route_number"></span></div>
+					</div>
+				</div>
+
+				<div class="item">
+					<i class="large bus middle aligned icon"></i>
+					<div class="content">
+						<div class="header">Bus number</a></div>
+						<div class="description"><span id="t_bus_number"></span></div>
+					</div>
+				</div>
+
+				<div class="item">
+					<i class="large wait middle aligned icon"></i>
+					<div class="content">
+						<div class="header">From</a></div>
+						<div class="description"><span id="t_from"></span></div>
+					</div>
+				</div>
+
+				<div class="item">
+					<i class="large wait middle aligned icon"></i>
+					<div class="content">
+						<div class="header">To</a></div>
+						<div class="description"><span id="t_to"></span></div>
+					</div>
+				</div>
+
+				<div class="item">
+					<i class="large users middle aligned icon"></i>
+					<div class="content">
+						<div class="header">Passenger(s)</a></div>
+						<div class="description"><span id="t_qty"></span></div>
+					</div>
+				</div>
+
+				<div class="item">
+					<i class="large money middle aligned icon"></i>
+					<div class="content">
+						<div class="header">Fare</a></div>
+						<div class="description"><span id="t_fare"></span></div>
+					</div>
+				</div>
+
+				<div class="item">
+					<i class="large ticket middle aligned icon"></i>
+					<div class="content">
+						<div class="header">Ticket #</a></div>
+						<div class="description"><span id="ticket">J60441161</span></div>
+					</div>
+				</div>
+
+				
+			</div>
+		</div>
+
 		<button class="negative ui button" id="stop">Stop sharing</button>
 	</div>
 </div>
@@ -293,6 +356,13 @@
 		if(valid_form())
 		{
 			
+			$('#t_route_number').text(bus_info['bus_number']);
+			$('#t_bus_number').text(bus_info['route_number']);
+			$('#t_from').text($('#share_info #from-wrapper').search('get value'));
+			$('#t_to').text($('#share_info #to-wrapper').search('get value'));
+			$('#t_qty').text($('#qty').val());
+			$('#t_fare').text($('#fare').text());
+
 			$('#scan_qr_code').hide();
 			$('#share_info').hide();
 			$('#stop_sharing').show();

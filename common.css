@@ -98,3 +98,14 @@ a{
 #info .list .item{
 	padding: 20px 0px !important;
 }
+
+#ticket-wrapper{
+	border-top: 1px dashed #888;
+    border-bottom: 1px dashed #888;
+    padding: 10px;
+    margin: 48px 0px;
+}
+
+#ticket-wrapper{
+	text-align: left;
+}
