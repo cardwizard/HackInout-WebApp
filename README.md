@@ -9,7 +9,7 @@ Run this by simply typing python -m SimpleHTTPServer in your command line.
 ## Screenshots from the mobile app
 
 ### Home Page
-![png](Screenshots/1a%20Home.png)
+![png](Screenshots/1a%20Home.png =200x465)
 
 ### Tracking the bus
 ![png](Screenshots/2a\ Track.png)
