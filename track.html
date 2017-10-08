@@ -21,17 +21,23 @@
 		<div class="menu">
 			<a class="item" href="track.html">Track bus location</a>
 			<a class="item" href="share.html">Share bus location</a>
+			<a class="item" href="#">Ride history</a>
+			<a class="item" href="#">Profile</a>
 			<a class="item" href="#">Credits</a>
 			<a class="item" href="#">Logout</a>
 		</div>
 	</div>
 </div>
 <div class="pusher">
-	<button class="ui button basic top-left" id="menu">
-		<i class="sidebar icon"></i> Menu
-	</button>
-	<div style="padding: 60px 20px;">
-		<form class="ui form">
+	<div class="ui fixed borderless menu">
+		<div class="ui container">
+      		<a href="#" class="header item">
+        		<i class="sidebar icon" id="menu"></i>
+      		</a>
+		</div>
+	</div>
+	<div style="padding: 64px 0px;">
+		<form class="ui form" style="padding: 0px 20px;">
 			<div class="field">
 			    <label>Enter pickup location</label>
 				<div class="ui search">
@@ -54,20 +60,18 @@
 			</div>
 			<button class="positive ui button" id="find">Find buses</button>
 		</form>
-
-		<h2 class="ui sub header">
-			Available buses
-		</h2>
-		<div class="ui relaxed divided list" id="available-buses">
-			<small>...</small>
+		
+		<div style="padding: 40px 20px 0px 20px;">
+			<h2 class="ui sub header">
+				Available buses
+			</h2>
+			<div class="ui relaxed divided list" id="available-buses">
+				<small>...</small>
+			</div>
 		</div>
+		<div id="map"></div>
 	</div>
 </div>
-
-<div id="map"></div>
-
-
-
 
 
 
@@ -92,46 +96,42 @@ var boolcheck = false;
 
 function render_map_with(buses) {
 
-	if(!buses)
+	if (!buses || buses.length <= 0)
 	{
-		console.log("no buses");
+		if ($('#from').val()  == "" || $('#to').val() == "")
+			$('#available-buses').html('<span>Select pick up/drop location for us to search buses for you!</span>');
+		else
+			$('#available-buses').html('<span>No buses/information currently not available in this route!</span>');
+		console.log("No buses/information currently not available in this route!")
 		return;
-	}
-
-	
-
-	if (buses.length <= 0)
-	{
-		$('#available-buses').html('<span>No buses available in this route!</span>');
 	}
 	else {
 		$('#available-buses').html('');
-		
-
-
+	
 		if(!map)
 		{
-				var lng, lat;
+			var lng, lat;
 
-				if(buses[0]["longitude"] > buses[0]["latitude"]){
-					lng = buses[0]["longitude"];
-					lat = buses[0]["latitude"];
-				}
-				else
-				{
-					lat = buses[0]["longitude"];
-					lng = buses[0]["latitude"];
-				}
+			if(buses[0]["longitude"] > buses[0]["latitude"]){
+				lng = buses[0]["longitude"];
+				lat = buses[0]["latitude"];
+			}
+			else
+			{
+				lat = buses[0]["longitude"];
+				lng = buses[0]["latitude"];
+			}
 
 			map = new google.maps.Map(document.getElementById('map'), {
-	          center: {lat: lat, lng: lng},
-	          zoom: 8
-	        });
+				center: {lat: lat, lng: lng},
+				zoom: 14
+			});
 		}
 
 		for (var i in buses)
 		{
-			$('#available-buses').append('<div class="item"><i class="large bus middle aligned icon"></i><div class="content"><a class="header">'+buses[i]["bus_number"] + '/' + buses[i]["route_number"] +'</a><div class="description">is at '+ buses[i]["latitude"] + ", " + buses[i]["longitude"] +'</div></div></div>');
+			// $('#available-buses').append('<div class="item"><i class="large bus middle aligned icon"></i><div class="content"><a class="header">'+buses[i]["bus_number"] + '/' + buses[i]["route_number"] +'</a><div class="description">is at '+ buses[i]["latitude"] + ", " + buses[i]["longitude"] +'</div></div></div>');
+			$('#available-buses').append('');
 
 			var lng, lat;
 
@@ -144,28 +144,33 @@ function render_map_with(buses) {
 				lat = buses[i]["longitude"];
 				lng = buses[i]["latitude"];
 			}
-			var obj =  {lat: lat, lng: lng};
 
+			var obj =  {lat: lat, lng: lng};
     		console.log(obj);
 
 			if(boolcheck) 
 			{
-
                 markerstore[i].setPosition(obj);
             } 
             else 
             {
-                  var marker = new google.maps.Marker({
-			      position: obj,
-			      map: map,
-			    });
+				var marker = new google.maps.Marker({
+					position: obj,
+					map: map,
+					icon: "bus.png",
+					bus_number: buses[i]["bus_number"],
+					route_number: buses[i]["route_number"],
+				});
+
+                marker.addListener('click', function() {
+  					console.log(marker.bus_number);
+  					console.log(marker.route_number);
+				});
+
                 markerstore.push(marker);
                 id++;
             }
-
-
 		}
-
 	}
 }
 
@@ -216,7 +221,9 @@ $('#find').click(function(e) {
 			}
 			boolcheck=false;
 			render_map_with(available_buses);
+			
 			boolcheck=true;
+			getmarkers();
 		})
 		.catch(function (error) {
 			console.log(error);
@@ -227,8 +234,9 @@ var INTERVAL = 5000;
 function getmarkers(){
 	$.get(base_url+'/v1/track_buses', {start: $('#from').val(), end: $('#to').val()}, function(response){
 			console.log($('#from').val());
+			console.log($('#to').val());
 			all_routes = response;
-			console.log(all_routes)
+			console.log(all_routes);
 			available_buses = [];
 			for (var i in all_routes) {
 				for (var j in all_routes[i]["all_buses"])
@@ -245,36 +253,6 @@ function getmarkers(){
 			window.setTimeout(getmarkers,INTERVAL);
 	}, "json");
 }
-
-getmarkers();
-/*
-axios.get(base_url+'/v1/track_buses',  {
-		params: {
-  			start: $('#from').val(),
-  			end: $('#to').val()
-		}
-		})
-	.then(function (response) {
-		all_routes = response["data"];
-		available_buses = [];
-		for (var i in all_routes) {
-			for (var j in all_routes[i]["all_buses"])
-			{
-				available_buses.push({
-					"bus_number": all_routes[i]["all_buses"][j]["bus_number"],
-					"route_number": all_routes[i]["route_number"],
-					"latitude": all_routes[i]["all_buses"][j]["latitude"],
-					"longitude": all_routes[i]["all_buses"][j]["longitude"]
-				});	
-			}
-		}
-		render_map_with(available_buses);
-	})
-.catch(function (error) {
-	console.log(error);
-});	
-*/
-
 
 </script>
 

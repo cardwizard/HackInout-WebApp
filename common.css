@@ -11,7 +11,7 @@ body{
 }
 
 #map{
-        height: 1000px;
+        height: 400px;
         width: 100%;
  }
 
@@ -72,16 +72,22 @@ a{
 
 .top-right {
 	position: absolute;
-	top: 10;
-	right: 10;
+	top: 20;
+	right: 20;
 }
 
 .top-left {
 	position: absolute;
-	top: 10;
-	left: 10;
+	top: 20;
+	left: 20;
 }
 
 #menu {
 	z-index: 1000;
+}
+
+.ui.fixed.menu{
+	border: 0;
+    box-shadow: none;
+    background: rgba(0,0,0,.05);
 }

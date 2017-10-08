@@ -21,6 +21,8 @@
 		<div class="menu">
 			<a class="item" href="track.html">Track bus location</a>
 			<a class="item" href="share.html">Share bus location</a>
+			<a class="item" href="#">Ride history</a>
+			<a class="item" href="#">Profile</a>
 			<a class="item" href="#">Credits</a>
 			<a class="item" href="#">Logout</a>
 		</div>
@@ -28,22 +30,30 @@
 </div>
 <div class="pusher">
 	<!-- Site content !-->
-	<button class="ui button basic top-left" id="menu">
-		<i class="sidebar icon"></i> Menu
-	</button>
-	<div class="wrapper full-width half-height" style="border-bottom: 1px solid #888;">
-		<a class="container" href="track.html">
-			<div class="shift-down">
-				<h1>Track bus location</h1>
-			</div>
-		</a>
+	<div class="ui fixed borderless menu">
+		<div class="ui container">
+      		<a href="#" class="header item">
+        		<i class="sidebar icon" id="menu"></i>
+      		</a>
+		</div>
 	</div>
-	<div class="wrapper full-width half-height">
-		<a class="container" href="share.html">
-			<div class="shift-down">
-				<h1>Share bus location</h1>
-			</div>
-		</a>
+	<div class="wrapper full-width">
+
+	    <h2 class="ui center aligned icon header" style="margin: 96px 3em;">
+			<i class="circular map inverted icon" style="background: #7665AA !important;"></i>
+			<a href="track.html" style="color: #666;">Track real-time location of a bus</a>
+		</h2>
+
+		<h2 class="ui center aligned icon header" style="margin: 96px 3em;">
+			<i class="circular marker inverted icon" style="background: #2B61F6 !important;"></i>
+			<a href="share.html" style="color: #666;">Share real-time location of a bus</a>
+		</h2>
+
+		<h2 class="ui center aligned icon header" style="margin: 96px 3em;">
+			<i class="circular pie chart inverted icon" style="background: #E1473A !important;"></i>
+			<a href="share.html" style="color: #666;">Analytics</a><br/>
+			<small>Only for admins</small>
+		</h2>	  
 	</div>
 </div>
 

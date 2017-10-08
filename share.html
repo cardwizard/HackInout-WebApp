@@ -21,6 +21,8 @@
 		<div class="menu">
 			<a class="item" href="track.html">Track bus location</a>
 			<a class="item" href="share.html">Share bus location</a>
+			<a class="item" href="#">Ride history</a>
+			<a class="item" href="#">Profile</a>
 			<a class="item" href="#">Credits</a>
 			<a class="item" href="#">Logout</a>
 		</div>
@@ -28,15 +30,19 @@
 </div>
 <div class="pusher">
 	<div id="scan_qr_code">
-		<button class="ui button basic top-left" id="menu">
-			<i class="sidebar icon"></i> Menu
-		</button>
+		<div class="ui fixed borderless menu">
+			<div class="ui container">
+	      		<a href="#" class="header item">
+	        		<i class="sidebar icon" id="menu"></i>
+	      		</a>
+			</div>
+		</div>
 		<video id="preview" width="100%" height="100%"></video>
 		<div class="cameras">
 		</div>
 	</div>
 	<div id="share_info">
-		<div class="ui form" style="padding: 20px 10%;">
+		<div class="ui form" style="padding: 96px 10%;">
 			<h2 class="ui center aligned icon header">
 				<i class="circular marker icon"></i>
 				Share location &amp; buy tickets
@@ -84,7 +90,7 @@
 <script type="text/javascript">
 	
 	var supported_cameras = [];
-	var bus_info;
+	var bus_info = {};
 
 	var base_url = "https://0573ef3d.ngrok.io"
 	var all_bus_stops = [];
@@ -121,19 +127,12 @@
 	  		})
 			.then(function (response) {
 				console.log(response);
-				read_qr_code();
+				go_to_home();
 			})
 			.catch(function (error) {
 				console.log(error);
 			});
 	}
-
-	$('#scan_qr_code').show();
-	$('#share_info').hide();
-	$('#stop_sharing').hide();
-	$('.ui.warning.message').hide();
-
-	$('#terms').checkbox();
 
 	let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
 
@@ -142,21 +141,11 @@
 			bus_info = JSON.parse(content);	
 
 			if ("route_number" in bus_info && "bus_number" in bus_info)
-			{
-				$('#share_info #bus_number').html(bus_info['bus_number']);
-				$('#share_info #route_number').html(bus_info['route_number']);
-
-				scanner.stop().then(function() {
-					$('#scan_qr_code').hide();
-					$('#share_info').show();
-					$('#stop_sharing').hide();
-				});	
-			}
+				start_tracking();
 		}
 		catch (e) {
 			console.log(e);
 		}
-		
 	});
 
 	Instascan.Camera.getCameras().then(function (cameras) {
@@ -169,28 +158,47 @@
 		}
 
 		// Activate first camera by default
-		if (cameras.length > 0) {
+		if (cameras.length > 0 && !("route_number" in bus_info && "bus_number" in bus_info)) {
 			scanner.start(cameras[0]);
 			$('.cameras .camera.icon').eq(0).addClass('selected');
 		} else {
-			console.error('No cameras found.');
+			console.error('No cameras found/bus info already available.');
 		}
 	}).catch(function (e) {
 		console.error(e);
 	});
 
-	function read_qr_code() {
+	if (window.location.search){
+		query_params_str = window.location.search.substr(1);
+		query_params_str.replace(/([^=&]+)=([^&]*)/g, function(m, key, value) {
+			bus_info[decodeURIComponent(key)] = decodeURIComponent(value);
+		}); 
 
-		bus_info = null;
-		
+		if ("route_number" in bus_info && "bus_number" in bus_info)
+			start_tracking();
+
+	} else {
 		$('#scan_qr_code').show();
 		$('#share_info').hide();
-		$('#stop_sharing').hide();
+		$('#stop_sharing').hide();	
+	}
 
-		$('.ui.warning.message').hide();
-		$('#terms').checkbox('set unchecked');
+	$('.ui.warning.message').hide();
+	$('#terms').checkbox();
 
-		scanner.start(supported_cameras[0]);
+	function start_tracking() {
+		$('#share_info #bus_number').html(bus_info['bus_number']);
+		$('#share_info #route_number').html(bus_info['route_number']);
+
+		scanner.stop().then(function() {
+			$('#scan_qr_code').hide();
+			$('#share_info').show();
+			$('#stop_sharing').hide();
+		});	
+	}
+
+	function go_to_home() {
+		window.location.href = "/";
 	}
 
 	$('#start').click(function(event) {
@@ -221,7 +229,7 @@
 	});
 
 	$('#rescan').click(function(event) {
-		read_qr_code();
+		go_to_home();
 	});
 
 	$('#stop').click(function(event) {
