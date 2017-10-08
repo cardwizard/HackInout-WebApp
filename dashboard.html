@@ -1,0 +1,107 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/components/icon.min.css" />
+<link href="common.css" rel="stylesheet">
+
+<div class="ui sidebar inverted vertical menu">
+	<div class="item">
+		<a class="ui logo icon image" href="/" style="margin-right: 10px;">
+		    <img src="https://ui-avatars.com/api/?name=User&size=32&length=1&background=0D8ABC&color=fff&rounded=true">
+		</a>
+		<a href="/">
+			<b>Welcome User</b>
+		</a>
+	</div>
+	<div class="item">
+		<div class="header">
+			Menu
+		</div>
+		<div class="menu">
+			<a class="item" href="track.html">Track bus location</a>
+			<a class="item" href="share.html">Share bus location</a>
+			<a class="item" href="#">Ride history</a>
+			<a class="item" href="#">Profile</a>
+			<a class="item" href="#">Credits</a>
+			<a class="item" href="#">Logout</a>
+		</div>
+	</div>
+</div>
+<div class="pusher">
+	<!-- Site content !-->
+	<div class="ui fixed borderless menu">
+		<div class="ui container">
+      		<a href="#" class="header item">
+        		<i class="sidebar icon" id="menu"></i>
+      		</a>
+		</div>
+	</div>
+	<div style="max-width: 400px; max-height: 400px; margin: 64px auto;">
+		Select Route -> 
+		<div class="ui dropdown">
+		  <div class="text"></div>
+		  <i class="dropdown icon"></i>
+		</div>
+		<canvas id="bar-chart" width="538" height="302" style="display: block; height: 242px; width: 431px;"></canvas>
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+<script type="text/javascript">
+	$('#menu').click(function(event) {
+		/* Act on the event */
+		$('.ui.sidebar').sidebar('toggle');
+	});
+</script>
+<script>
+
+function create_dropdown(route_info)
+{
+	$('.ui.dropdown')
+	  .dropdown({
+		values: route_info,
+		onChange: function(value, text, $selectedItem) {
+		  console.log(value);
+		  $.ajax({
+				   type: "GET",
+					dataType: "json",
+					url: "http://localhost:5000/v1/get_crowd_info",
+					data: {"route_number": value},
+					success: function(data){
+						render_graph(data);
+					}
+				});
+		}
+	  });
+}
+
+$(document).ready(function(){
+    $.ajax({
+               type: "GET",
+                dataType: "json",
+                url: "http://localhost:5000/v1/route_numbers",
+                success: function(data){
+                    create_dropdown(data);
+                }
+            });
+});
+
+function render_graph(data)
+{
+	console.log(data);
+	var barChart = new Chart(document.getElementById("bar-chart"), {
+		type: 'bar',
+		data: data,
+		options: {
+		  legend: { display: false },
+		  title: {
+			display: true,
+			text: 'Average Crowd Density per ride'
+		  }
+		}
+	});
+}
+</script>
