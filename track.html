@@ -36,7 +36,7 @@
       		</a>
 		</div>
 	</div>
-	<div style="padding: 64px 0px;">
+	<div id="data" style="padding: 64px 0px;">
 		<form class="ui form" style="padding: 0px 20px;">
 			<div class="field">
 			    <label>Enter pickup location</label>
@@ -71,6 +71,47 @@
 		</div>
 		<div id="map"></div>
 	</div>
+	<div id="info" style="padding: 64px 20px;">
+		<h2>Bus information</h2>
+		<div class="ui relaxed divided list">
+			<div class="item">
+				<i class="large code middle aligned icon"></i>
+				<div class="content">
+					<div class="header">Route number</a></div>
+					<div class="description"><span id="route_number"></span></div>
+				</div>
+			</div>
+
+			<div class="item">
+				<i class="large bus middle aligned icon"></i>
+				<div class="content">
+					<div class="header">Bus number</a></div>
+					<div class="description"><span id="bus_number"></span></div>
+				</div>
+			</div>
+
+			<div class="item">
+				<i class="large marker end middle aligned icon"></i>
+				<div class="content">
+					<div class="header">Current status</a></div>
+					<div class="description">It is currently at <span id="nearest"></span>. Probably, <span id="crowd"></span> seat(s) are occupied.</div>
+				</div>
+			</div>
+
+
+			<div class="item">
+				<i class="large hourglass end middle aligned icon"></i>
+				<div class="content">
+					<div class="header">Estimated arrival time</a></div>
+					<div class="description">Bus is <span id="distance"></span> away from your current location and is expected to reach in <span id="time"></span>.</div>
+				</div>
+			</div>
+
+			<small>This info was last updated at <span id="updated_at"></span></small>
+		</div>
+		<button class="ui positive button" onclick="go_to_share();">Board bus</button>
+		<button class="ui basic button" onclick="show_data();">Change route</button>
+	</div>
 </div>
 
 
@@ -82,17 +123,63 @@
 
 <script>
 
-var base_url = "https://0573ef3d.ngrok.io"
+var base_url = "https://4ecedd7c.ngrok.io"
 var all_bus_stops = [];
 var all_routes = [];
 var available_buses = [];
+var selected_bus = [];
 var map;
 
 var markerstore = [];
 var id = 0;
 var boolcheck = false;
+var update_timer;
 
+function show_data(){
+	$('#data').show();
+	$('#info').hide();
+	clearTimeout(update_timer);
+}
 
+function go_to_share(){
+	var params = {
+		"from": $('#from').val(),
+		"to": $('#to').val(),
+		"bus_number": $('#bus_number').text(),
+		"route_number": $('#route_number').text()
+	}
+	window.location = "/share.html?" + $.param(params);
+}
+
+function update_bus_info() {
+	navigator.geolocation.getCurrentPosition(function(position){
+		axios.get(base_url+'/v1/get_bus_info',  {
+	    		params: {
+	      			route_number: selected_bus["route_number"],
+					bus_number: selected_bus["bus_number"],
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude
+	    		}
+	  		})
+			.then(function (response) {
+				real_time_data = response["data"];
+				$('#data').hide();
+				$('#route_number').text(selected_bus["route_number"]);
+				$('#bus_number').text(selected_bus["bus_number"]);
+				$('#distance').text(real_time_data["distance_left"]);
+				$('#nearest').text(real_time_data["nearest_area"]);
+				$('#time').text(real_time_data["estimated_time"]);
+				$('#crowd').text(real_time_data["crowd"]);
+				$('#updated_at').text(real_time_data["last_heard"]);
+				$('#info').show();
+			})
+			.catch(function (error) {
+				console.log(error);
+			});	
+	});
+}
+
+show_data();
 
 function render_map_with(buses) {
 
@@ -163,8 +250,11 @@ function render_map_with(buses) {
 				});
 
                 marker.addListener('click', function() {
-  					console.log(marker.bus_number);
-  					console.log(marker.route_number);
+                	selected_bus = {
+                		"bus_number": marker.bus_number,
+                		"route_number": marker.route_number
+                	}
+                	update_timer = setInterval(update_bus_info, 5000);
 				});
 
                 markerstore.push(marker);
