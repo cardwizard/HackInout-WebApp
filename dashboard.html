@@ -47,6 +47,19 @@
 		<canvas id="line-chart" width="538" height="302" style="display: block; height: 242px; width: 431px;"></canvas>
 		
 	</div>
+
+  <h3 style="text-align: center;font-weight: bold;"> PerFect routes for Advertisement</h3>
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Route</th>
+        <th>No of Buses</th>
+      </tr>
+    </thead>
+    <tbody id="extendtable">
+    </tbody>
+   </table>	  
+	
 </div>
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -59,8 +72,13 @@
 		/* Act on the event */
 		$('.ui.sidebar').sidebar('toggle');
 	});
+
+
 </script>
 <script>
+
+var base_url = "https://0573ef3d.ngrok.io";
+
 
 function create_dropdown(route_info)
 {
@@ -133,5 +151,17 @@ function render_line_graph(data)
 	});
 }
 
+
+// for best advertisement busiest root
+
+$.get(base_url+'/v1/get_busy_routes', {}, function(response){
+		var top_routes = response;
+		console.log(top_routes);
+
+		for(var i in top_routes)
+		{
+			$("#extendtable").append("<tr><td> " + top_routes[i]["Route"] + "</td><td>" + top_routes[i]["Buses"] + "</td></tr>");
+		}
+});
 </script>
-	
+

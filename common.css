@@ -58,12 +58,11 @@ a{
 }
 
 .cameras {
-	background: rgba(0,0,0,0.8);
+	background: rgba(0,0,0,0.35);
 	padding: 20px;
-	position: absolute;
-	width: 100%;
-    bottom: 0;   
-    text-align: center;
+	position: relative;
+	top: -74px;
+	text-align: center;
 }
 
 .camera.selected {
@@ -90,4 +89,12 @@ a{
 	border: 0;
     box-shadow: none;
     background: rgba(0,0,0,.05);
+}
+
+#info span{
+	font-weight: bold;
+}
+
+#info .list .item{
+	padding: 20px 0px !important;
 }

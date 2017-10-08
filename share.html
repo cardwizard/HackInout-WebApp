@@ -37,24 +37,69 @@
 	      		</a>
 			</div>
 		</div>
-		<video id="preview" width="100%" height="100%"></video>
+		<h2 class="ui center aligned icon header" style="margin: 96px 48px 48px 48px;">
+			<i class="circular qrcode icon"></i>
+			Scan QR code
+		</h2>
+		<video id="preview" width="100%"></video>
 		<div class="cameras">
 		</div>
 	</div>
 	<div id="share_info">
-		<div class="ui form" style="padding: 96px 10%;">
-			<h2 class="ui center aligned icon header">
+		<div class="ui form" style="padding: 48px 10%;">
+			<h2 class="ui center aligned icon header" style="margin-bottom: 32px;">
 				<i class="circular marker icon"></i>
 				Share location &amp; buy tickets
 			</h2>
+			<div class="ui grid">
+				<div class="eight wide column">
+					<h2 class="ui sub header">
+			  			Bus number
+					</h2>
+					<span id="bus_number"></span>
+				</div>
+				<div class="eight wide column">
+					<h2 class="ui sub header">
+			  			Route number
+					</h2>
+					<span id="route_number"></span>
+				</div>
+			</div>
+
+			<div class="field" style="margin-top: 15px;">
+				<div class="sixteen wide field">
+					<div class="ui search" id="from-wrapper">
+						<div class="ui icon input">
+							<input class="prompt" type="text" placeholder="Enter pickup location" id="from">
+							<i class="search icon"></i>
+						</div>
+						<div class="results"></div>
+					</div>
+				</div>
+			</div>
+			<div class="field">
+				<div class="sixteen wide field">
+					<div class="ui search" id="to-wrapper">
+						<div class="ui icon input">
+							<input class="prompt" type="text" placeholder="Where to?" id="to">
+							<i class="search icon"></i>
+						</div>
+						<div class="results"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="field">
+				<div class="sixteen wide field">
+					<div class="ui input">
+	  					<input type="number" placeholder="No. of tickets" id="qty">
+					</div>
+				</div>
+			</div>
+
 			<h2 class="ui sub header">
-	  			Bus number
+				Total: INR <span id="fare"></span>
 			</h2>
-			<span id="bus_number"></span>
-			<h2 class="ui sub header">
-	  			Route number
-			</h2>
-			<span id="route_number"></span>
 
 			<h2 class="ui sub header">
 			</h2>
@@ -67,17 +112,18 @@
 
 			<h2 class="ui sub header">
 			</h2>
+			<a class="positive ui button" href="https://mercury-demo.phonepe.com/pay_demo" target="_blank" onclick="pay(); return false;">Pay</a>
 			<button class="positive ui button" id="start">Start sharing</button>
 			<button class="basic ui button" id="rescan">Cancel</button>
 
 			<h2 class="ui sub header">
 			</h2>
 			<div class="ui warning message">
-				You must accept the <a href="#">terms and conditions</a> before you can start sharing bus location for other users.
+				Fill all the information before you can proceed.
 			</div>
 		</div>
 	</div>
-	<div id="stop_sharing" style="text-align: center; padding-top: 25%;">
+	<div id="stop_sharing" style="text-align: center; padding: 48px 10%;">
 		<button class="negative ui button" id="stop">Stop sharing</button>
 	</div>
 </div>
@@ -92,10 +138,12 @@
 	var supported_cameras = [];
 	var bus_info = {};
 
-	var base_url = "https://0573ef3d.ngrok.io"
+	var base_url = "https://4ecedd7c.ngrok.io"
 	var all_bus_stops = [];
+	var bus_stops = [];
 
 	var info_pusher;
+
 
 	function share_bus_location(latitude, longitude) {
 		axios.get(base_url+'/v1/share_bus_location',  {
@@ -132,6 +180,36 @@
 			.catch(function (error) {
 				console.log(error);
 			});
+	}
+
+	function get_stops() {
+		axios.get(base_url+'/v1/get_stops', {
+				params: {
+					route_number: bus_info["route_number"],
+					bus_number: bus_info["bus_number"]
+				}
+			})
+			.then(function (response) {
+				bus_stops = response["data"];
+				$('.ui.search').search({source: bus_stops});
+			})
+			.catch(function (error) {
+				console.log(error);
+			});
+	}
+
+	function pay() {
+		if(valid_form())
+		{
+			$('.ui.warning.message').hide();
+			window.open('https://mercury-demo.phonepe.com/pay_demo', '_blank');
+		}
+		else
+			$('.ui.warning.message').show();
+	}
+
+	function valid_form() {
+		return $('#tc').is(':checked') && $('#qty').val() != '' && $('#from-wrapper').search('get value') != '' && $('#to-wrapper').search('get value') != '';
 	}
 
 	let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
@@ -189,20 +267,30 @@
 	function start_tracking() {
 		$('#share_info #bus_number').html(bus_info['bus_number']);
 		$('#share_info #route_number').html(bus_info['route_number']);
+		$('#share_info #from-wrapper').search('set value', bus_info["from"]);
+		$('#share_info #to-wrapper').search('set value', bus_info["to"]);
+
+		get_stops();
 
 		scanner.stop().then(function() {
 			$('#scan_qr_code').hide();
 			$('#share_info').show();
 			$('#stop_sharing').hide();
-		});	
+		});
 	}
 
 	function go_to_home() {
 		window.location.href = "/";
 	}
 
+	$('#qty').change(function(event) {
+		qty = Number($(this).val());
+		if(!isNaN(qty))
+			$('#fare').text(parseFloat(qty * 12).toFixed(2));
+	});
+
 	$('#start').click(function(event) {
-		if($('#tc').is(':checked'))
+		if(valid_form())
 		{
 			
 			$('#scan_qr_code').hide();
