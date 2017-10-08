@@ -10,6 +10,11 @@ body{
 	width: 100%;
 }
 
+#map{
+        height: 1000px;
+        width: 100%;
+ }
+
 sup{
 	font-weight: 300;
 }

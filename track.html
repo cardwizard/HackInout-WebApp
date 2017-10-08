@@ -64,6 +64,8 @@
 	</div>
 </div>
 
+<div id="map"></div>
+
 
 
 
@@ -80,20 +82,97 @@ var base_url = "https://0573ef3d.ngrok.io"
 var all_bus_stops = [];
 var all_routes = [];
 var available_buses = [];
+var map;
+
+var markerstore = [];
+var id = 0;
+var boolcheck = false;
+
+
 
 function render_map_with(buses) {
+
+	if(!buses)
+	{
+		console.log("no buses");
+		return;
+	}
+
+	
+
 	if (buses.length <= 0)
 	{
 		$('#available-buses').html('<span>No buses available in this route!</span>');
 	}
 	else {
 		$('#available-buses').html('');
+		
+
+
+		if(!map)
+		{
+				var lng, lat;
+
+				if(buses[0]["longitude"] > buses[0]["latitude"]){
+					lng = buses[0]["longitude"];
+					lat = buses[0]["latitude"];
+				}
+				else
+				{
+					lat = buses[0]["longitude"];
+					lng = buses[0]["latitude"];
+				}
+
+			map = new google.maps.Map(document.getElementById('map'), {
+	          center: {lat: lat, lng: lng},
+	          zoom: 8
+	        });
+		}
+
 		for (var i in buses)
 		{
 			$('#available-buses').append('<div class="item"><i class="large bus middle aligned icon"></i><div class="content"><a class="header">'+buses[i]["bus_number"] + '/' + buses[i]["route_number"] +'</a><div class="description">is at '+ buses[i]["latitude"] + ", " + buses[i]["longitude"] +'</div></div></div>');
-		}	
+
+			var lng, lat;
+
+			if(buses[i]["longitude"] > buses[i]["latitude"]){
+				lng = buses[i]["longitude"];
+				lat = buses[i]["latitude"];
+			}
+			else
+			{
+				lat = buses[i]["longitude"];
+				lng = buses[i]["latitude"];
+			}
+			var obj =  {lat: lat, lng: lng};
+
+    		console.log(obj);
+
+			if(boolcheck) 
+			{
+
+                markerstore[i].setPosition(obj);
+            } 
+            else 
+            {
+                  var marker = new google.maps.Marker({
+			      position: obj,
+			      map: map,
+			    });
+                markerstore.push(marker);
+                id++;
+            }
+
+
+		}
+
 	}
 }
+
+
+
+
+
 
 axios.get(base_url+'/v1/all_stops')
 	.then(function (response) {
@@ -135,12 +214,70 @@ $('#find').click(function(e) {
 					});	
 				}
 			}
+			boolcheck=false;
 			render_map_with(available_buses);
+			boolcheck=true;
 		})
 		.catch(function (error) {
 			console.log(error);
 		});	
 });
 
+var INTERVAL = 5000;
+function getmarkers(){
+	$.get(base_url+'/v1/track_buses', {start: $('#from').val(), end: $('#to').val()}, function(response){
+			console.log($('#from').val());
+			all_routes = response;
+			console.log(all_routes)
+			available_buses = [];
+			for (var i in all_routes) {
+				for (var j in all_routes[i]["all_buses"])
+				{
+					available_buses.push({
+						"bus_number": all_routes[i]["all_buses"][j]["bus_number"],
+						"route_number": all_routes[i]["route_number"],
+						"latitude": all_routes[i]["all_buses"][j]["latitude"],
+						"longitude": all_routes[i]["all_buses"][j]["longitude"]
+					});	
+				}
+			}
+			render_map_with(available_buses);
+			window.setTimeout(getmarkers,INTERVAL);
+	}, "json");
+}
 
+getmarkers();
+/*
+axios.get(base_url+'/v1/track_buses',  {
+		params: {
+  			start: $('#from').val(),
+  			end: $('#to').val()
+		}
+		})
+	.then(function (response) {
+		all_routes = response["data"];
+		available_buses = [];
+		for (var i in all_routes) {
+			for (var j in all_routes[i]["all_buses"])
+			{
+				available_buses.push({
+					"bus_number": all_routes[i]["all_buses"][j]["bus_number"],
+					"route_number": all_routes[i]["route_number"],
+					"latitude": all_routes[i]["all_buses"][j]["latitude"],
+					"longitude": all_routes[i]["all_buses"][j]["longitude"]
+				});	
+			}
+		}
+		render_map_with(available_buses);
+	})
+.catch(function (error) {
+	console.log(error);
+});	
+*/
+
+
+</script>
+
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADYeTHLIlxv4gr5o1fFC6-khGaZ3yRrZw&callback=render_map_with">
 </script>
