@@ -37,13 +37,15 @@
       		</a>
 		</div>
 	</div>
-	<div style="max-width: 400px; max-height: 400px; margin: 64px auto;">
+	<div style="max-width: 500px; max-height: 400px; margin: 64px auto;">
 		Select Route -> 
 		<div class="ui dropdown">
 		  <div class="text"></div>
 		  <i class="dropdown icon"></i>
 		</div>
 		<canvas id="bar-chart" width="538" height="302" style="display: block; height: 242px; width: 431px;"></canvas>
+		<canvas id="line-chart" width="538" height="302" style="display: block; height: 242px; width: 431px;"></canvas>
+		
 	</div>
 
   <h3 style="text-align: center;font-weight: bold;"> PerFect routes for Advertisement</h3>
@@ -63,6 +65,8 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+
+
 <script type="text/javascript">
 	$('#menu').click(function(event) {
 		/* Act on the event */
@@ -89,7 +93,8 @@ function create_dropdown(route_info)
 					url: "http://localhost:5000/v1/get_crowd_info",
 					data: {"route_number": value},
 					success: function(data){
-						render_graph(data);
+						render_bar_graph(data["bar_chart"]);
+						render_line_graph(data["line_chart"]);
 					}
 				});
 		}
@@ -107,22 +112,44 @@ $(document).ready(function(){
             });
 });
 
-function render_graph(data)
+function render_bar_graph(data)
 {
-	console.log(data);
 	var barChart = new Chart(document.getElementById("bar-chart"), {
 		type: 'bar',
+		data: data,
+		options: {
+		  legend: { display: true },
+		  title: {
+			display: true,
+			text: 'Average Crowd Density per day'
+		  },
+		  scales: {
+					xAxes: [{
+						stacked: true,
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				}
+		}
+	});
+}
+
+function render_line_graph(data)
+{
+	var barChart = new Chart(document.getElementById("line-chart"), {
+		type: 'line',
 		data: data,
 		options: {
 		  legend: { display: false },
 		  title: {
 			display: true,
-			text: 'Average Crowd Density per ride'
+			text: 'Average Crowd Density per ride',
+		
 		  }
 		}
 	});
 }
-
 
 
 // for best advertisement busiest root
@@ -137,3 +164,4 @@ $.get(base_url+'/v1/get_busy_routes', {}, function(response){
 		}
 });
 </script>
+
